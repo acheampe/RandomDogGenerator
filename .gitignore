@@ -8,3 +8,6 @@ __pycache__/
 # Ignore other common files
 *.log
 *.env
+
+# Ignore vid
+*.mov

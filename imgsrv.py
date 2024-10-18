@@ -35,6 +35,7 @@ class ImageService:
         """
         Use modulus to avoid index out of bounds and find the appropriate index.
         """
+        ### Image service reads image-service.txt ###
         service_value = self.read_image_service()
         
         if not service_value:
@@ -59,7 +60,7 @@ class ImageService:
 
     def image_path(self):
         """
-        Define the selected image path and return it along with the file object.
+        Define the selected image path and write it to the image-service.txt file.
         """
         try:
             index = self.find_index()
@@ -67,30 +68,12 @@ class ImageService:
             image_path = f"dog-images/{image}"
             if os.path.exists(image_path):
                 print(f"Selected image path: {image_path}")
-                if self.last_image_path != image_path:
-                    self.last_image_path = image_path  # Update the last image path
-                    # Open the image in the default viewer
-                    if platform.system() == "Windows":
-                        os.startfile(image_path)
-                    elif platform.system() == "Darwin":  # macOS
-                        # Use AppleScript to open the image in Preview and enter full-screen mode
-                        # script = f'''
-                        # tell application "Preview"
-                        #     activate
-                        #     open "{image_path}"
-                        #     delay 0.5
-                        #     tell application "System Events"
-                        #         keystroke "f" using {{control down, command down}}  -- Enter full screen
-                        #     end tell
-                        # end tell
-                        # '''
-                        # subprocess.run(['osascript', '-e', script])
-                        subprocess.run(['open', image_path])
-                    else:  # Linux
-                        subprocess.call(["xdg-open", image_path])
-                else:
-                    print("The same image is already opened.")
-                return image_path, open(image_path, 'rb')  # Return the path and file object
+                #clear the file before writing new path
+                self.clear_image_service()
+                ### Write the image path to image-service.txt ###
+                with open("image-service.txt", "w") as file:
+                    file.write(image_path)
+                return image_path
             else:
                 raise FileNotFoundError(f"Image {image} not found in path {image_path}.")
         except ValueError as e:
@@ -101,6 +84,5 @@ class ImageService:
 if __name__ == "__main__":
     image_service = ImageService()
     while True:  # Keep running to simulate microservice behavior
-        path, file_obj = image_service.image_path()
-        file_obj.close()
+        image_service.image_path()
         time.sleep(1)  # Delay to prevent busy-waiting

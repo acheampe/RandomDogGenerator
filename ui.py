@@ -1,36 +1,60 @@
 import time
+import os
+import platform
+import subprocess
+
+
+class ImageHandler:
+    def __init__(self):
+        self.last_image_path = None
+
+    def open_image(self, image_path):
+        if self.last_image_path != image_path:
+            self.last_image_path = image_path
+            print(f"Opening image: {image_path}")
+            
+            if platform.system() == "Windows":
+                os.startfile(image_path)
+            elif platform.system() == "Darwin":  # macOS
+                subprocess.run(['open', image_path])
+            else:  # Linux
+                subprocess.call(["xdg-open", image_path])
+        else:
+            print("The same image is already opened.")
 
 def main():
+    image_handler = ImageHandler()
     while True:
         # Request user input
         user_input = input("Enter 1 to generate a new image, 2 to exit: ")
 
         if user_input == '1':
-            # Write "run" to prng-service.txt to request a new pseudo-random number
+            ### Write "run" to prng-service.txt to request a new pseudo-random number ####
             with open("prng-service.txt", "w") as prng_file:
                 prng_file.write("run")
 
             # Wait for the random number to be generated
             time.sleep(1)  # Adjusted delay for quicker response
 
-            # Read the pseudo-random number from prng-service.txt
+            ### Read the pseudo-random number from prng-service.txt ###
             with open("prng-service.txt", "r") as prng_file:
                 pseudo_random_number = prng_file.read().strip()
 
             # Check if a valid number was generated
             if pseudo_random_number.isdigit():
-                # Open image-service.txt, erase any existing data, and write the new random number
+                ### Open image-service.txt, erase any existing data, and write the new random number ###
                 with open("image-service.txt", "w") as image_service_file:
                     image_service_file.write(pseudo_random_number)
 
                 # Wait for the image service to process the number
                 time.sleep(5)  # Adjusted delay for quicker response
 
-                # Read and output the content of image-service.txt
+                ### Read and output the content of image-service.txt ###
                 with open("image-service.txt", "r") as image_service_file:
                     image_output = image_service_file.read().strip()
                     if image_output:
                         print(f"Image service output: {image_output}")
+                        image_handler.open_image(image_output)
                     else:
                         print("Error: No output from image service.")
             else:

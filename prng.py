@@ -29,18 +29,16 @@ class RandomNumber:
         """
         Writes a random number to prng service if 'run' is found
         """
+
+        ### PRNG reads from prng-service text and writes to the same txt file ###
         prng_command = self.read_prng()
         if prng_command == 'run':
             self.clear_prng()  # Clear the file before writing the number
             random_number = str(self.generate_random_int())
             with open("prng-service.txt", "w") as file:
                 file.write(random_number)
-
-            # Write the random number to image-service.txt
-            with open("image-service.txt", "w") as file:
-                file.write(random_number)
-
             time.sleep(5)
+
         elif prng_command == '':
             print("prng-service.txt is empty. Please add 'run' to the file.")
         else:
